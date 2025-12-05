@@ -52,6 +52,9 @@ LOGGING = {
             "class": "logging.FileHandler",
             "filename": "../errors.log",
         },
+        "console": {
+            "class": "logging.StreamHandler",
+        },
     },
     "loggers": {
         "django.request": {
@@ -59,6 +62,10 @@ LOGGING = {
             "level": "ERROR",
             "propagate": True,
         }
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
     },
 }
 
@@ -93,4 +100,38 @@ if SENTRY_DSN := os.environ.get("SENTRY_DSN"):
         send_default_pii=True,
         release=f"recoco@{VERSION}",
     )
+
+# OpenID
+if os.getenv("OPENID_PROVIDER_ID") is not None:
+    INSTALLED_APPS.remove('allauth.mfa')
+
+    # Auto-inscription sans intervention utilisateur
+    SOCIALACCOUNT_AUTO_SIGNUP = True
+    SOCIALACCOUNT_STORE_TOKENS = True
+
+    # Désactivez local signup (seul social)
+    SOCIALACCOUNT_ONLY = True
+
+    # Skip email vérification (Keycloak l'a déjà vérifié)
+    ACCOUNT_EMAIL_VERIFICATION = 'none' # Not work with social account only
+
+    # Redirections automatiques
+    LOGIN_REDIRECT_URL = '/'
+    ACCOUNT_SIGNUP_REDIRECT_URL = '/'
+    SOCIALACCOUNT_LOGIN_ON_GET = True
+    SOCIALACCOUNT_PROVIDERS = {
+        "openid_connect": {
+            "APPS": [
+                {
+                    "provider_id": os.getenv("OPENID_PROVIDER_ID"),
+                    "name": os.getenv("OPENID_NAME"),
+                    "client_id": os.getenv("OPENID_CLIENT_ID"),
+                    "secret": os.getenv("OPENID_CLIENT_SECRET"),
+                    "settings": {
+                        "server_url": os.getenv("OPENID_SERVER_URL"),
+                    },
+                }
+            ]
+        }
+    }
 

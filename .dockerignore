@@ -1,5 +1,8 @@
 .git
 .github
+.env
+.venv
 docker-compose.yml
 Dockerfile
 docker
+static/

@@ -5,6 +5,8 @@ function Auth() {
   return {
     initLogin() {
       const loginInput = document.getElementById('id_login');
+      if (!loginInput) return;
+
       if (loginInput.value.length > 0) {
         this.changeForgotPasswrodButtonHref(loginInput);
       }
@@ -15,6 +17,8 @@ function Auth() {
     },
     changeForgotPasswrodButtonHref(target) {
       const forgotPasswordButton = document.getElementById('forgot-password');
+      if (!forgotPasswordButton) return;
+
       const newUrlwithHash =
         forgotPasswordButton.getAttribute('href') + '#' + target.value;
 
